@@ -1862,7 +1862,7 @@ function submitDistractorAnswer() {
 }
 
 // AI 챗봇: Cloudflare Worker만 호출 (OpenAI 키는 Worker 측 환경 변수)
-const CHAT_WORKER_URL = 'https://experiment.syuun0315.workers.dev';
+const CHAT_WORKER_URL = 'https://experiment0325.vercel.app/api/chat';
 
 /** Worker가 { reply } 또는 예전 프록시(OpenAI choices) 형식으로 줄 때 모두 처리 */
 function extractWorkerReplyText(data) {

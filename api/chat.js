@@ -36,10 +36,43 @@ export default async function handler(req, res) {
 
     const data = await openaiRes.json();
 
-    let reply = data.output_text || "";
+    if (!openaiRes.ok) {
+      return res.status(500).json({
+        error: "OpenAI request failed",
+        status: openaiRes.status,
+        openai: data,
+      });
+    }
+
+    let reply = "";
+
+    if (typeof data.output_text === "string" && data.output_text.trim()) {
+      reply = data.output_text.trim();
+    } else if (Array.isArray(data.output)) {
+      for (const item of data.output) {
+        if (item.type === "message" && Array.isArray(item.content)) {
+          for (const c of item.content) {
+            if (c.type === "output_text" && c.text) {
+              reply += c.text;
+            }
+          }
+        }
+      }
+      reply = reply.trim();
+    }
+
+    if (!reply) {
+      return res.status(500).json({
+        error: "No reply text in OpenAI response",
+        openai: data,
+      });
+    }
 
     return res.status(200).json({ reply });
   } catch (err) {
-    return res.status(500).json({ error: "server error" });
+    return res.status(500).json({
+      error: "server error",
+      detail: err instanceof Error ? err.message : String(err),
+    });
   }
 }
